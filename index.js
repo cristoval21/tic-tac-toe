@@ -46,65 +46,48 @@ function Gameboard() {
 
   function checkIfWon(playerSymbol) {
     const flatBoardWithValues = getBoardWithValues().flat();
+    const boardLength = flatBoardWithValues.length;
 
-    for (let rowIndex = 0; rowIndex < flatBoardWithValues.length; rowIndex += boardSize) {
-      const row = flatBoardWithValues.slice(rowIndex, rowIndex + boardSize);
-
-      // Check row
-      if (row.every(item => item === playerSymbol)) {
-        return true;
-      }
-
-      if (rowIndex = 0) {
-        // Check column
-        row.forEach((rowItem, index) => {
-          let column = [];
-
-          for (let columnIndex = index; columnIndex <= flatBoardWithValues.length - boardSize + index; columnIndex += boardSize) {
-            column.push(flatBoardWithValues[columnIndex]);
-          }
-        })
-      }
+    function isEveryItemTheSame(array) {
+      return array.every(item => item === playerSymbol)
     }
-
-    // const boardWithValues = getBoardWithValues();
-
-    // boardWithValues.forEach((row, rowIndex) => {
-    //   // Check row
-    //   if (row.every((column, columnIndex, array) => column === array[0])) return true;
-
-    //   if (rowIndex === 0) {
-    //     row.forEach((column, columnIndex, array) => {
-    //       let currentArray = []
-
-    //       if ((columnIndex === 0) || (columnIndex === boardSize - 1)) {
-    //         // Check diagonal
-    //         currentArray.push(column);
-
-    //         if (columnIndex === 0) {
-    //           for (let index = 1; index < boardSize; index++) {
-    //             currentArray.push(boardWithValues[index][index]);
-    //           }
-    //         } else {
-              
-    //         }
   
-    //         if (currentArray.every((verticalItem, columnIndex, array) => verticalItem === array[0])) return true;
-
-    //         currentArray = []
-    //       }
-
-    //       // Check column
-    //       currentArray.push(column);
-
-    //       for (let index = 1; index < boardSize; index++) {
-    //         currentArray.push(boardWithValues[index][columnIndex]);
-    //       }
-
-    //       if (currentArray.every((verticalItem, columnIndex, array) => verticalItem === array[0])) return true;
-    //     });
-    //   }
-    // });
+    for (let rowIndex = 0; rowIndex <= boardLength - boardSize; rowIndex += boardSize) {
+      const row = flatBoardWithValues.slice(rowIndex, rowIndex + boardSize);
+    
+      // Check row
+      if (isEveryItemTheSame(row)) {
+        return {row};
+      }
+  
+      else if (rowIndex === 0) {
+        // Check column
+        for (let columnIndex = 0; columnIndex <= boardSize; columnIndex++) {
+          let column = [];
+          for (let index = columnIndex; index <= boardLength - boardSize + columnIndex; index += boardSize) column.push(flatBoardWithValues[index]);
+    
+          if (isEveryItemTheSame(column)) {
+            return {column};
+          }
+        }
+  
+        // Check diagonal
+        for (let columnIndex = 0; columnIndex <= boardSize; columnIndex += (boardSize - 1)) {
+          let diagonal = [];
+          if (columnIndex === 0) {
+            // console.log("this");
+            for (let index = columnIndex; index <= boardLength - 1; index += (boardSize + 1)) diagonal.push(flatBoardWithValues[index]);
+          } else if (columnIndex === boardSize - 1) {
+            // console.log(columnIndex);
+            for (let index = columnIndex; index <= boardLength - boardSize; index += (boardSize - 1)) diagonal.push(flatBoardWithValues[index]);
+          }
+  
+          if (isEveryItemTheSame(diagonal)) return {diagonal};
+        }
+      }
+  
+      return false;
+    }
   }
 
   function printBoard() {
@@ -144,6 +127,7 @@ function GameController(
 
   function changePlayer() {
     currentPlayer = currentPlayer === firstPlayer ? secondPlayer : firstPlayer;
+    console.log(`It\'s ${currentPlayer.getName()}'s turn now.`);
   }
 
   function playTurn(row, column) {
@@ -158,10 +142,16 @@ function GameController(
       console.log(`Successfully marked cell on row ${row} and column ${column}`);
     }
 
-    changePlayer();
+    if (board.checkIfWon(currentPlayer.getSymbol())) {
+      console.log(`${currentPlayer.getName()} has won the game!`);
+      return;
+    } else {
+      changePlayer();
+    }
   }
-
+  
   board.printBoard();
+  console.log(`It\'s ${currentPlayer.getName()}'s turn now.`);
 
   return {
     playTurn
