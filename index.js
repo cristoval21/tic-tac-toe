@@ -30,6 +30,10 @@ function Gameboard() {
     return board;
   }
 
+  function getBoardSize() {
+    return boardSize;
+  }
+
   function getBoardWithValues() {
     return board.map(row => row.map(cell => cell.getValue()));
   }
@@ -44,9 +48,55 @@ function Gameboard() {
     }
   }
 
+  function printBoard() {
+    console.log(getBoardWithValues());
+  }
+
+  return {
+    getBoard,
+    getBoardSize,
+    getBoardWithValues,
+    placeMark,
+    printBoard
+  }
+}
+
+function Player(playerName, playerSymbol) {
+  const name = playerName;
+  const symbol = playerSymbol;
+  
+  const getName = () => name;
+  const getSymbol = () => symbol;
+
+  return {
+    getName,
+    getSymbol
+  }
+}
+
+function GameController(
+  firstPlayerName = "First Player",
+  secondPlayerName = "Second Player"
+) {
+  const board = Gameboard();
+  const firstPlayer = Player(firstPlayerName, "X");
+  const secondPlayer = Player(secondPlayerName, "O");
+
+  let currentPlayer = firstPlayer;
+
+  function changePlayer() {
+    currentPlayer = currentPlayer === firstPlayer ? secondPlayer : firstPlayer;
+    console.log(`It\'s ${currentPlayer.getName()}'s turn now.`);
+  }
+
+  function checkIfBoardIsFull() {
+    return !board.getBoardWithValues().flat().some(item => item === 0);
+  }
+
   function checkIfWon(playerSymbol) {
-    const flatBoardWithValues = getBoardWithValues().flat();
+    const flatBoardWithValues = board.getBoardWithValues().flat();
     const boardLength = flatBoardWithValues.length;
+    const boardSize = board.getBoardSize();
 
     function isEveryItemTheSame(array) {
       return array.every(item => item === playerSymbol)
@@ -90,46 +140,6 @@ function Gameboard() {
     }
   }
 
-  function printBoard() {
-    console.log(getBoardWithValues());
-  }
-
-  return {
-    getBoard,
-    placeMark,
-    checkIfWon,
-    printBoard
-  }
-}
-
-function Player(playerName, playerSymbol) {
-  const name = playerName;
-  const symbol = playerSymbol;
-  
-  const getName = () => name;
-  const getSymbol = () => symbol;
-
-  return {
-    getName,
-    getSymbol
-  }
-}
-
-function GameController(
-  firstPlayerName = "First Player",
-  secondPlayerName = "Second Player"
-) {
-  const board = Gameboard();
-  const firstPlayer = Player(firstPlayerName, "X");
-  const secondPlayer = Player(secondPlayerName, "O");
-
-  let currentPlayer = firstPlayer;
-
-  function changePlayer() {
-    currentPlayer = currentPlayer === firstPlayer ? secondPlayer : firstPlayer;
-    console.log(`It\'s ${currentPlayer.getName()}'s turn now.`);
-  }
-
   function playTurn(row, column) {
     const place = board.placeMark(row, column, currentPlayer.getSymbol());
 
@@ -142,11 +152,24 @@ function GameController(
       console.log(`Successfully marked cell on row ${row} and column ${column}`);
     }
 
-    if (board.checkIfWon(currentPlayer.getSymbol())) {
+    if (checkIfWon(currentPlayer.getSymbol())) {
       console.log(`${currentPlayer.getName()} has won the game!`);
-      return;
+      return {
+        isGameOver: true,
+        isTied: false,
+        currentPlayer
+      };
+    } else if (checkIfBoardIsFull()) {
+      return {
+        isGameOver: true,
+        isTied: true
+      };
     } else {
       changePlayer();
+      return {
+        isGameOver: false,
+        isTied: false
+      };
     }
   }
   
@@ -154,8 +177,72 @@ function GameController(
   console.log(`It\'s ${currentPlayer.getName()}'s turn now.`);
 
   return {
-    playTurn
+    playTurn,
+    getBoard: board.getBoard 
   }
 }
 
-const game = GameController();
+function ScreenController() {
+  const game = GameController();
+  const divBoard = document.querySelector(".gameboard");
+  
+  function updateBoard() {
+    divBoard.textContent = "";
+
+    const board = game.getBoard();
+    board.forEach((row, rowIndex) => {
+      const boardRow = document.createElement("div");
+      boardRow.classList.add("gameboard__row");
+  
+      row.forEach((column, columnIndex) => {
+        const boardItem = document.createElement("button");
+        boardItem.setAttribute("type", "button");
+        boardItem.classList.add("gameboard__button");
+        boardItem.dataset.row = rowIndex;
+        boardItem.dataset.column = columnIndex;
+  
+        if (column.getValue() === 0) {
+          boardItem.innerHTML = "&nbsp;";
+        } else {
+          boardItem.innerHTML = column.getValue();
+          boardItem.setAttribute("disabled", "true");
+        }
+        // boardItem.innerHTML = column.getValue() === 0 ? "&nbsp;" : column.getValue();
+        boardRow.appendChild(boardItem);
+      });
+  
+      divBoard.appendChild(boardRow);
+    });
+  }
+
+  function disableBoardTie() {
+    divBoard.textContent = "The game was a tie!";
+  }
+
+  function disableBoardWin(winner) {
+    divBoard.textContent = `${winner} has won!`;
+  }
+  
+  function addListener() {
+    divBoard.addEventListener("click", (event) => {
+      if (event.target.className === "gameboard__button") {
+        const row = event.target.dataset.row;
+        const column = event.target.dataset.column;
+        const result = game.playTurn(row, column);
+        
+        if (!result.isGameOver) {
+          updateBoard();
+        } else if (result.isTied) {
+          disableBoardTie();
+        } else {
+          disableBoardWin(result.currentPlayer.getName());
+        }
+      }
+    });
+  }
+
+  addListener();
+  updateBoard();
+}
+
+ScreenController();
