@@ -7,13 +7,28 @@
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1:wght@100..900&display=swap" rel="stylesheet">
   <script src="index.js" defer></script>
 </head>
 <body>
-  <div class="page-wrapper">
-    <h1 class="page-title">Tic Tac Toe</h1>
-    <div class="gameboard"></div>
+  <div class="page-container">
+    <div class="start-container">
+      <h1>Tic-Tac-Toe</h1>
+      <form class="form form-start">
+        <div class="form__content-container form__field-container">
+          <label class="form__item form__label" for="player-one">First player name</label>
+          <input class="form__item form__input" type="text" name="player-one" id="player-one">
+          <label class="form__item form__label" for="player-two">Second player name</label>
+          <input class="form__item form__input" type="text" name="player-two" id="player-two">
+        </div>
+
+        <div class="form__content-container form__button-container">
+          <button type="submit" class="button form__button form__button-new-game">Start a new game</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- <div class="gameboard"></div> -->
   </div>
 </body>
 </html>

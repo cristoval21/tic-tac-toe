@@ -1,3 +1,15 @@
+// function Modal() {
+//   const modal = document.querySelector(".modal");
+
+//   function showModal() {
+//     return modal.showModal();
+//   }
+
+//   return {
+//     showModal
+//   };
+// }
+
 function Cell() {
   let value = 0;
 
