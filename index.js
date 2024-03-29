@@ -119,7 +119,7 @@ function GameController(
     
       // Check row
       if (isEveryItemTheSame(row)) {
-        return {row};
+        return true;
       }
   
       else if (rowIndex === 0) {
@@ -129,7 +129,7 @@ function GameController(
           for (let index = columnIndex; index <= boardLength - boardSize + columnIndex; index += boardSize) column.push(flatBoardWithValues[index]);
     
           if (isEveryItemTheSame(column)) {
-            return {column};
+            return true;
           }
         }
   
@@ -144,7 +144,7 @@ function GameController(
             for (let index = columnIndex; index <= boardLength - boardSize; index += (boardSize - 1)) diagonal.push(flatBoardWithValues[index]);
           }
   
-          if (isEveryItemTheSame(diagonal)) return {diagonal};
+          if (isEveryItemTheSame(diagonal)) return true;
         }
       }
   
@@ -195,8 +195,35 @@ function GameController(
 }
 
 function ScreenController() {
-  const game = GameController();
+  const startButton = document.querySelector(".form__button-new-game");
   const divBoard = document.querySelector(".gameboard");
+  let game;
+
+  startButton.addEventListener("click", event => {
+    event.preventDefault();
+    const playerOneName = document.querySelector("#player-one").value;
+    const playerTwoName = document.querySelector("#player-two").value;
+
+    game = GameController(playerOneName, playerTwoName);
+    
+    toggleNewGameScreen();
+    addBoardListener();
+    updateBoard();
+  });
+
+  function toggleNewGameScreen(headerText) {
+    const startContainer = document.querySelector(".start-container");
+    const startHeader = document.querySelector(".start__header");
+
+    if (startContainer.style.display != "none") {
+      startContainer.style.display = "none";
+      divBoard.style.display = "initial";
+    } else {
+      startHeader.textContent = headerText;
+      startContainer.style.display = "initial";
+      divBoard.style.display = "none";
+    }
+  }
   
   function updateBoard() {
     divBoard.textContent = "";
@@ -226,16 +253,8 @@ function ScreenController() {
       divBoard.appendChild(boardRow);
     });
   }
-
-  function disableBoardTie() {
-    divBoard.textContent = "The game was a tie!";
-  }
-
-  function disableBoardWin(winner) {
-    divBoard.textContent = `${winner} has won!`;
-  }
   
-  function addListener() {
+  function addBoardListener() {
     divBoard.addEventListener("click", (event) => {
       if (event.target.className === "gameboard__button") {
         const row = event.target.dataset.row;
@@ -245,16 +264,13 @@ function ScreenController() {
         if (!result.isGameOver) {
           updateBoard();
         } else if (result.isTied) {
-          disableBoardTie();
+          toggleNewGameScreen("The game was a tie!");
         } else {
-          disableBoardWin(result.currentPlayer.getName());
+          toggleNewGameScreen(`${result.currentPlayer.getName()} won!`);
         }
       }
     });
   }
-
-  addListener();
-  updateBoard();
 }
 
 ScreenController();

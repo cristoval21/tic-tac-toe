@@ -62,7 +62,7 @@ html, body {
   margin-block-start: 1rem;
 }
 
-.form-start {
+.start__form {
   margin-block-start: 1rem;
 }
 
@@ -75,6 +75,10 @@ html, body {
   font-size: 0.875rem;
   padding: 0.5em 1em;
   border-radius: 500px;
+}
+
+.gameboard {
+  display: none;
 }
 
 .gameboard__button {

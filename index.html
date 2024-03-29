@@ -13,13 +13,13 @@
 <body>
   <div class="page-container">
     <div class="start-container">
-      <h1>Tic-Tac-Toe</h1>
-      <form class="form form-start">
+      <h1 class="start__header">Tic-Tac-Toe</h1>
+      <form class="form start__form">
         <div class="form__content-container form__field-container">
           <label class="form__item form__label" for="player-one">First player name</label>
-          <input class="form__item form__input" type="text" name="player-one" id="player-one">
+          <input class="form__item form__input" type="text" name="player-one" id="player-one" required>
           <label class="form__item form__label" for="player-two">Second player name</label>
-          <input class="form__item form__input" type="text" name="player-two" id="player-two">
+          <input class="form__item form__input" type="text" name="player-two" id="player-two" required>
         </div>
 
         <div class="form__content-container form__button-container">
@@ -28,7 +28,7 @@
       </form>
     </div>
 
-    <!-- <div class="gameboard"></div> -->
+    <div class="gameboard"></div>
   </div>
 </body>
 </html>
