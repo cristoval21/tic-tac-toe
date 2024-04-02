@@ -19,7 +19,7 @@ html, body {
 
 .modal {
   margin: auto;
-  padding: 2rem;
+  padding: 2rem 3rem;
   border-radius: 20px;
   border: none;
 }
@@ -33,7 +33,8 @@ html, body {
 }
 
 .button {
-  padding: 0.5em 2em;
+  padding: 1em 2em;
+  width: max-content;
   font-size: 1rem;
   background-color: #00703c;
   font-weight: bold;
@@ -45,12 +46,14 @@ html, body {
 
 .button:hover {
   background-color: #005a30;
+  transition: 300ms all linear;
 }
 
 .button:active,
 .button:focus {
   background-color: #fd0;
   color: black;
+  transition: 100ms all linear;
 }
 
 .form__content-container {
@@ -62,19 +65,34 @@ html, body {
   margin-block-start: 1rem;
 }
 
-.start__form {
-  margin-block-start: 1rem;
+.start-container {
+  display: flex;
+  align-items: center;
+  gap: 10vw;
+  background-color: #DFF5FF;
+  padding: 1rem 2rem;
+  border-radius: 1rem;
 }
 
 .form__label:not(:first-child) {
-  margin-block-start: 0.5rem;
+  margin-block-start: 0.75rem;
 }
 
 .form__input {
-  border: 2px solid gray;
+  outline: 2px solid gray;
   font-size: 0.875rem;
-  padding: 0.5em 1em;
+  border: none;
+  padding: 1em 1em;
   border-radius: 500px;
+  margin-block-start: 0.25em;
+}
+
+.form__input:focus {
+  outline: 3px solid black;
+}
+
+.form__button-container {
+  margin-block-start: 2rem;
 }
 
 .gameboard {
@@ -83,12 +101,16 @@ html, body {
 
 .gameboard__button {
   font-size: 5rem;
-  width: 2em;
-  height: 2em;
+  width: 1.5em;
+  height: 1.5em;
   background-color: transparent;
-  border: 1px solid black;
+  border: none;
+  outline: 2px solid black;
   display: inline-block;
   cursor: pointer;
+  margin: 0.5rem;
+  border-radius: 500px;
+  font-family: "Shantell Sans", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 .gameboard__button:disabled {
@@ -99,5 +121,22 @@ html, body {
 
 .gameboard__button:not(:disabled):hover {
   background-color: #fd0;
-  transition: 300ms background-color ease;
+  transition: 300ms background-color linear, 100ms outline linear;
+  outline: 5px solid black;
+}
+
+.modal__container {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.modal__icon--large {
+  font-size: 6rem;
+}
+
+.modal__result {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }

@@ -1,14 +1,30 @@
-// function Modal() {
-//   const modal = document.querySelector(".modal");
+function GameOverModal() {
+  const modal = document.querySelector(".modal");
+  const restartButton = document.querySelector(".button__restart-game");
 
-//   function showModal() {
-//     return modal.showModal();
-//   }
+  modal.addEventListener("cancel", event => {
+    event.preventDefault();
+  });
 
-//   return {
-//     showModal
-//   };
-// }
+  function showModal() {
+    modal.showModal();
+  }
+
+  function onClickRestart(callbackFn) {
+    return new Promise((resolve, reject) => {
+      restartButton.addEventListener("click", () => {
+        callbackFn();
+        modal.close();
+        resolve("done");
+      });
+    });
+  }
+
+  return {
+    showModal,
+    onClickRestart
+  };
+}
 
 function Cell() {
   let value = 0;
@@ -31,10 +47,12 @@ function Gameboard() {
   const board = [];
   const boardSize = 3;
 
-  for (let i = 0; i < boardSize; i++) {
-    board[i] = [];
-    for (let j = 0; j < boardSize; j++) {
-      board[i].push(Cell());
+  function createBoard() {
+    for (let i = 0; i < boardSize; i++) {
+      board[i] = [];
+      for (let j = 0; j < boardSize; j++) {
+        board[i].push(Cell());
+      }
     }
   }
 
@@ -52,24 +70,25 @@ function Gameboard() {
 
   function placeMark(row, column, playerSymbol) {
     const currentSpot = board[row][column];
-    if (currentSpot.getValue() != 0) {
-      return false;
-    } else {
-      currentSpot.markSpot(playerSymbol);
-      return true;
-    }
+    currentSpot.markSpot(playerSymbol);
   }
 
-  function printBoard() {
-    console.log(getBoardWithValues());
+  function resetBoard() {
+    for (let i = 0; i < boardSize; i++) {
+      board[i] = [];
+    }
+
+    createBoard();
   }
+
+  createBoard();
 
   return {
     getBoard,
     getBoardSize,
     getBoardWithValues,
     placeMark,
-    printBoard
+    resetBoard
   }
 }
 
@@ -98,7 +117,6 @@ function GameController(
 
   function changePlayer() {
     currentPlayer = currentPlayer === firstPlayer ? secondPlayer : firstPlayer;
-    console.log(`It\'s ${currentPlayer.getName()}'s turn now.`);
   }
 
   function checkIfBoardIsFull() {
@@ -152,51 +170,45 @@ function GameController(
     }
   }
 
+  function resetGame() {
+    board.resetBoard();
+  }
+
   function playTurn(row, column) {
-    const place = board.placeMark(row, column, currentPlayer.getSymbol());
-
-    board.printBoard();
-
-    if (!place) {
-      console.log("Can't place mark there. It's already filled");
-      return;
-    } else {
-      console.log(`Successfully marked cell on row ${row} and column ${column}`);
-    }
+    board.placeMark(row, column, currentPlayer.getSymbol());
 
     if (checkIfWon(currentPlayer.getSymbol())) {
-      console.log(`${currentPlayer.getName()} has won the game!`);
       return {
-        isGameOver: true,
+        hasGameEnded: true,
         isTied: false,
         currentPlayer
       };
     } else if (checkIfBoardIsFull()) {
       return {
-        isGameOver: true,
+        hasGameEnded: true,
         isTied: true
       };
     } else {
       changePlayer();
       return {
-        isGameOver: false,
+        hasGameEnded: false,
         isTied: false
       };
     }
   }
-  
-  board.printBoard();
-  console.log(`It\'s ${currentPlayer.getName()}'s turn now.`);
 
   return {
     playTurn,
-    getBoard: board.getBoard 
+    getBoard: board.getBoard,
+    resetGame
   }
 }
 
 function ScreenController() {
   const startButton = document.querySelector(".form__button-new-game");
   const divBoard = document.querySelector(".gameboard");
+  const modal = GameOverModal();
+  
   let game;
 
   startButton.addEventListener("click", event => {
@@ -261,12 +273,16 @@ function ScreenController() {
         const column = event.target.dataset.column;
         const result = game.playTurn(row, column);
         
-        if (!result.isGameOver) {
-          updateBoard();
-        } else if (result.isTied) {
-          toggleNewGameScreen("The game was a tie!");
-        } else {
-          toggleNewGameScreen(`${result.currentPlayer.getName()} won!`);
+        updateBoard();
+
+        if (result.isTied) {
+          modal.onClickRestart(game.resetGame)
+               .then(() => updateBoard());
+          modal.showModal();
+        } else if (result.hasGameEnded) {
+          modal.showModal();
+          modal.onClickRestart(game.resetGame)
+               .then(() => updateBoard());
         }
       }
     });
@@ -274,3 +290,7 @@ function ScreenController() {
 }
 
 ScreenController();
+
+// const gameResultModal = document.querySelector(".modal__game-result");
+// const openModal = document.querySelector(".button__show-modal");
+// openModal.addEventListener("click", () => gameResultModal.showModal());
